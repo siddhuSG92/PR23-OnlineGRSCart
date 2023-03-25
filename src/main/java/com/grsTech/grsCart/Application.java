@@ -10,5 +10,6 @@ public class Application {
 		//version 2
 		SpringApplication.run(Application.class, args);
 	}
-
+	
+	
 }
