@@ -1,15 +1,11 @@
 package com.grsTech.grsCart.exceptionhandling;
 
-public class BusinessException extends RuntimeException {
+public class ControllerException {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
-	
-	public String errorCode ;
-	public String errorMessage ;
-	
+
+	public String errorCode;
+	public String errorMessage;
 	public String getErrorCode() {
 		return errorCode;
 	}
@@ -22,16 +18,20 @@ public class BusinessException extends RuntimeException {
 	public void setErrorMessage(String errorMessage) {
 		this.errorMessage = errorMessage;
 	}
-	public BusinessException(String errorCode, String errorMessage) {
+	
+	
+	public ControllerException(String errorCode, String errorMessage) {
 		super();
 		this.errorCode = errorCode;
 		this.errorMessage = errorMessage;
 	}
-	public BusinessException() {
+	
+	
+	public ControllerException() {
 		
 	}
 	@Override
 	public String toString() {
-		return "BusinessException [errorCode=" + errorCode + ", errorMessage=" + errorMessage + "]";
+		return "ControllerException [errorCode=" + errorCode + ", errorMessage=" + errorMessage + "]";
 	}
 }

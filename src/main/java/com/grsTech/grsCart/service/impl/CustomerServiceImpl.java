@@ -36,40 +36,52 @@ public class CustomerServiceImpl implements CustomerServiceInterface {
 		OrderResponse OrderResponse = new OrderResponse();
 		Customer customer = orderRequest.getCustomer();
 		customer.setCustomerId(generateCustomerId());
+		System.out.println("After GENERATOR) : - +" + customer);
 
-		try {
-			if (customer.getCustomerId() != null & customer != null) {
-
-				Customer orderPlacedResponse = customerRepo.save(customer);
-				System.out.println("Products Details :- " + orderPlacedResponse.getProducts());
-				Product product = (Product) orderPlacedResponse.getProducts().get(0);
-
-				if (orderPlacedResponse != null) {
-					OrderDetails OrderDetails = new OrderDetails();
-					OrderDetails.setOrderId(generateOrderId());
-					OrderDetails.setProductId(product.getProductId());
-					OrderDetails.setEmail(orderPlacedResponse.getEmail());
-					OrderDetails.setOrderPlacedDt(orderPlacedResponse.getCreatedDate());
-					OrderDetails.setOrderBy(orderPlacedResponse.getCreatedBy());
-					OrderDetails.setCreatedBy(orderPlacedResponse.getCreatedBy());
-					OrderDetails.setCreatedDate(orderPlacedResponse.getCreatedDate());
-
-					orderRepo.save(OrderDetails);
-					System.out.println("After Save : = " + orderPlacedResponse);
-					// Make Payment here call payment service and generate Payment Ref Number.
-					// Once Payment is Success sent confirmation mail to ordered Person with Order Ref Number
-					OrderResponse.setOrderMessage("Order Placed Succeffully..!");
-					return OrderResponse;
-				}
-
-			} else {
-				throw new BusinessException("601", "illegal Argument Exception");
-			}
-
-		} catch (Exception e) {
-			throw new BusinessException("602", e.getMessage());
+		if (customer.getEmail() == null || customer.getEmail().isEmpty()) {
+			throw new BusinessException("601", "Email is Mandatory, Please Provide Email Address");
 		}
-		return null;
+		
+		try {
+
+			if (customer != null && customer.getCustomerId() != null) {
+				Customer orderPlacedResponse = customerRepo.save(customer);
+				if (orderPlacedResponse != null) {
+					Product product = (Product) customer.getProducts().get(0);
+					if (product.getProductId() != null && !product.getProductId().isEmpty()) {
+						OrderDetails OrderDetails = new OrderDetails();
+						OrderDetails.setOrderId(generateOrderId());
+						OrderDetails.setProductId(product.getProductId());
+						OrderDetails.setEmail(orderPlacedResponse.getEmail());
+						OrderDetails.setOrderPlacedDt(orderPlacedResponse.getCreatedDate());
+						OrderDetails.setOrderBy(orderPlacedResponse.getCreatedBy());
+						OrderDetails.setCreatedBy(orderPlacedResponse.getCreatedBy());
+						OrderDetails.setCreatedDate(orderPlacedResponse.getCreatedDate());
+
+						OrderDetails OrderDResponse = orderRepo.save(OrderDetails);
+						System.out.println("After Save : = " + OrderDResponse);
+
+						// Make Payment here call payment service and generate Payment Ref Number.
+						// Once Payment is Success sent confirmation mail to ordered Person with Order
+						// Ref Number
+						OrderResponse.setOrderRefNumber(OrderDResponse.getOrderId());
+						OrderResponse.setOrderMessage("Order Placed Succeffully..!");
+						OrderResponse.setOrderPlacedDate(OrderDResponse.getCreatedDate().toString());
+						return OrderResponse;
+					} else {
+						throw new BusinessException("602", "Given Prodcut Details are EMpty or Null");
+					}
+				} else {
+					throw new BusinessException("603", "Given Customer Details are EMpty or Null");
+				}
+			} else {
+				throw new BusinessException("604", "Given Customer Details are EMpty or Null");
+			}
+		} catch (IllegalArgumentException e) {
+			throw new BusinessException("605", "Given Customer OR Prodcut Details are EMpty or Null");
+		} catch (Exception e) {
+			throw new BusinessException("606", e.getMessage());
+		}
 	}
 
 	@Override
